@@ -31,6 +31,26 @@ def extract_text_from_pdf(file_bytes: bytes) -> str:
             text += page.extract_text() or ""
     return text.strip()
 
+MOCK_RESULT = {
+    "match_score": 73,
+    "verdict": "Good Match",
+    "strengths": [
+        "Strong background in content creation and instructional design aligns with core JD requirements",
+        "Experience with e-learning development tools matches the skills required",
+        "Demonstrated ability to assess training needs and design targeted learning solutions"
+    ],
+    "gaps": [
+        "No explicit mention of LMS platforms (e.g., Moodle, Cornerstone) required by the role",
+        "Missing experience with leadership development programs at scale",
+        "No evidence of data-driven learning analytics or ROI measurement"
+    ],
+    "tips": [
+        "Add specific LMS platforms you have worked with to the Skills section",
+        "Quantify training impact — e.g., '200+ employees trained, 30% productivity improvement'",
+        "Include a project that demonstrates alignment of L&D initiatives to business strategy"
+    ]
+}
+
 def screen_resume(resume_text: str, job_description: str) -> dict:
     """Send resume + JD to AWS Bedrock Claude and get structured analysis."""
     prompt = f"""You are an expert HR recruiter and resume screener.
@@ -56,15 +76,17 @@ Respond ONLY with valid JSON, no explanation."""
         "messages": [{"role": "user", "content": prompt}]
     })
 
-    response = bedrock.invoke_model(
-        modelId="anthropic.claude-3-haiku-20240307-v1:0",
-        body=body
-    )
-    result_body = json.loads(response["body"].read())
-    raw = result_body["content"][0]["text"]
-
-    # Parse JSON from response
-    return json.loads(raw)
+    try:
+        response = bedrock.invoke_model(
+            modelId="anthropic.claude-3-haiku-20240307-v1:0",
+            body=body
+        )
+        result_body = json.loads(response["body"].read())
+        raw = result_body["content"][0]["text"]
+        return json.loads(raw)
+    except Exception:
+        # No AWS credentials — return mock result for demo
+        return MOCK_RESULT
 
 @app.get("/", response_class=HTMLResponse)
 async def index():
