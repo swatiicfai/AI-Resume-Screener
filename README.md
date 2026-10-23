@@ -7,8 +7,17 @@ Upload a resume, paste a job description — get an AI match score instantly usi
 [![Best Open-Source AI Project](https://img.shields.io/badge/DigitalOcean-Best%20Open--Source%20AI%20Project-0080FF?logo=digitalocean)](https://github.com/swatiicfai/AI-Resume-Screener)
 [![Best Use of AWS](https://img.shields.io/badge/AWS-Best%20Use%20of%20AWS-FF9900?logo=amazonaws)](https://github.com/swatiicfai/AI-Resume-Screener)
 [![Hacktoberfest](https://img.shields.io/badge/Hacktoberfest-2026-purple)](https://github.com/swatiicfai/AI-Resume-Screener)
+[![Demo](https://img.shields.io/badge/Demo-YouTube-red?logo=youtube)](https://youtu.be/zarAvd-Su30)
 [![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.111-green?logo=fastapi)](https://fastapi.tiangolo.com)
+
+---
+
+## 🎬 Demo Video
+
+[![Watch Demo](https://img.shields.io/badge/Watch%20Demo-YouTube-red?logo=youtube&style=for-the-badge)](https://youtu.be/zarAvd-Su30)
+
+> Click above to watch the full demo with AI voiceover explanation
 
 ---
 
