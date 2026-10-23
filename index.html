@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Resume Screener 🚀</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      color: #fff;
+    }
+    .container {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 800px;
+      width: 100%;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+    }
+    h1 { font-size: 2rem; margin-bottom: 6px; }
+    .badge {
+      display: inline-block;
+      background: #ff9900;
+      color: #000;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-bottom: 28px;
+      letter-spacing: 1px;
+    }
+    label { font-size: 0.85rem; opacity: 0.7; display: block; margin-bottom: 6px; margin-top: 18px; }
+    textarea, input[type="file"] {
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border 0.2s;
+    }
+    textarea:focus { border-color: #ff9900; }
+    textarea { resize: vertical; min-height: 130px; }
+    input[type="file"]::file-selector-button {
+      background: #ff9900;
+      color: #000;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      margin-right: 10px;
+    }
+    button {
+      margin-top: 24px;
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(90deg, #ff9900, #ff6600);
+      color: #000;
+      font-weight: 700;
+      font-size: 1rem;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      letter-spacing: 0.5px;
+    }
+    button:hover { opacity: 0.9; transform: translateY(-1px); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Results */
+    #results { margin-top: 36px; display: none; }
+    .score-ring {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .score-circle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 6px solid #ff9900;
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: rgba(255,153,0,0.1);
+    }
+    .verdict {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-top: 8px;
+      color: #ff9900;
+    }
+    .cards { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+    @media(max-width: 600px) { .cards { grid-template-columns: 1fr; } }
+    .card {
+      background: rgba(255,255,255,0.07);
+      border-radius: 12px;
+      padding: 18px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .card h3 { font-size: 0.8rem; opacity: 0.6; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+    .card ul { list-style: none; padding: 0; }
+    .card ul li {
+      padding: 5px 0;
+      font-size: 0.88rem;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .card ul li:last-child { border-bottom: none; }
+    .card ul li::before { margin-right: 8px; }
+    .strengths li::before { content: "✅"; }
+    .gaps li::before { content: "⚠️"; }
+    .tips li::before { content: "💡"; }
+    .loader {
+      text-align: center;
+      padding: 30px;
+      font-size: 1rem;
+      opacity: 0.7;
+      display: none;
+    }
+    .error { color: #ff6b6b; margin-top: 16px; font-size: 0.9rem; display: none; }
+    .powered {
+      text-align: center;
+      margin-top: 28px;
+      font-size: 0.75rem;
+      opacity: 0.4;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>🤖 AI Resume Screener</h1>
+  <div class="badge">⚡ POWERED BY AWS BEDROCK</div>
+
+  <label>📄 Upload Resume (PDF or TXT)</label>
+  <input type="file" id="resume" accept=".pdf,.txt" />
+
+  <label>📋 Paste Job Description</label>
+  <textarea id="jd" placeholder="Paste the full job description here..."></textarea>
+
+  <button id="btn" onclick="screen()">Analyse Resume →</button>
+  <p class="error" id="error"></p>
+
+  <div class="loader" id="loader">⏳ Analysing with Claude on AWS Bedrock...</div>
+
+  <div id="results">
+    <div class="score-ring">
+      <div class="score-circle" id="score">—</div>
+      <div class="verdict" id="verdict"></div>
+    </div>
+    <div class="cards">
+      <div class="card">
+        <h3>✅ Strengths</h3>
+        <ul class="strengths" id="strengths"></ul>
+      </div>
+      <div class="card">
+        <h3>⚠️ Gaps</h3>
+        <ul class="gaps" id="gaps"></ul>
+      </div>
+      <div class="card">
+        <h3>💡 Tips</h3>
+        <ul class="tips" id="tips"></ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="powered">Built at MLH Hacktoberfest Hack Day Bengaluru × AWS Student Builder Group</div>
+</div>
+
+<script>
+  async function screen() {
+    const file = document.getElementById('resume').files[0];
+    const jd = document.getElementById('jd').value.trim();
+    const btn = document.getElementById('btn');
+    const loader = document.getElementById('loader');
+    const error = document.getElementById('error');
+    const results = document.getElementById('results');
+
+    error.style.display = 'none';
+    results.style.display = 'none';
+
+    if (!file) { showError('Please upload a resume file.'); return; }
+    if (!jd) { showError('Please paste a job description.'); return; }
+
+    btn.disabled = true;
+    loader.style.display = 'block';
+
+    const form = new FormData();
+    form.append('resume', file);
+    form.append('job_description', jd);
+
+    try {
+      const res = await fetch('/screen', { method: 'POST', body: form });
+      const data = await res.json();
+      if (data.error) { showError(data.error); return; }
+      renderResults(data);
+    } catch (e) {
+      showError('Server error: ' + e.message);
+    } finally {
+      btn.disabled = false;
+      loader.style.display = 'none';
+    }
+  }
+
+  function renderResults(d) {
+    document.getElementById('score').textContent = d.match_score + '%';
+    document.getElementById('verdict').textContent = d.verdict;
+
+    const fill = (id, items) => {
+      const el = document.getElementById(id);
+      el.innerHTML = items.map(i => `<li>${i}</li>`).join('');
+    };
+    fill('strengths', d.strengths);
+    fill('gaps', d.gaps);
+    fill('tips', d.tips);
+
+    document.getElementById('results').style.display = 'block';
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function showError(msg) {
+    const e = document.getElementById('error');
+    e.textContent = '❌ ' + msg;
+    e.style.display = 'block';
+  }
+</script>
+</body>
+</html>
