@@ -7,6 +7,9 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import io
+from pathlib import Path
+
+BASE_DIR = Path(__file__).parent
 
 app = FastAPI(title="AI Resume Screener")
 
@@ -90,7 +93,7 @@ Respond ONLY with valid JSON, no explanation."""
 
 @app.get("/", response_class=HTMLResponse)
 async def index():
-    with open("index.html", "r") as f:
+    with open(BASE_DIR / "index.html", "r") as f:
         return f.read()
 
 @app.post("/screen")
